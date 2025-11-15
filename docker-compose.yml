@@ -2,9 +2,10 @@ services:
   mysql-db:
     image: mysql:8.0
     container_name: roteiros-mysql
+    restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=roteiros-db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: roteiros-db
     ports:
       - "3307:3306"
     volumes:
@@ -21,7 +22,7 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: roteiros-rabbitmq
     ports:
-      - "5672:5672" 
+      - "5672:5672"
       - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_VHOST=/
@@ -36,15 +37,21 @@ services:
       dockerfile: Dockerfile
     container_name: roteiro-service
     environment:
-      - DB_HOST=mysql-db
-      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      DB_HOST: mysql-db
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/roteiros"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
     depends_on:
       mysql-db:
         condition: service_healthy
       rabbitmq:
-        condition: service_started 
+        condition: service_started
     networks:
       - roteiros-network
 
@@ -58,6 +65,23 @@ services:
     depends_on:
       rabbitmq:
         condition: service_started
+    networks:
+      - roteiros-network
+
+  # Front-end Angular (Containerização)
+  roteiro-front:
+    build:
+      # Contexto: O Docker procura os arquivos na pasta Front/
+      context: ./Front
+      # O Dockerfile para o Front-end está DENTRO da pasta Front/
+      dockerfile: Dockerfile
+    container_name: roteiro-front
+    restart: on-failure
+    ports:
+      - "80:80" # Acessível via http://localhost
+    depends_on:
+      roteiro-service:
+        condition: service_healthy
     networks:
       - roteiros-network
 
