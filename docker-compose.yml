@@ -1,0 +1,69 @@
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: roteiros-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=roteiros-db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--user=root", "--password=${MYSQL_ROOT_PASSWORD}"]
+      timeout: 20s
+      retries: 10
+      start_period: 20s
+    networks:
+      - roteiros-network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: roteiros-rabbitmq
+    ports:
+      - "5672:5672" 
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_VHOST=/
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - roteiros-network
+
+  roteiro-service:
+    build:
+      context: ./Back/roteiro-service
+      dockerfile: Dockerfile
+    container_name: roteiro-service
+    environment:
+      - DB_HOST=mysql-db
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started 
+    networks:
+      - roteiros-network
+
+  sugestao-service:
+    build:
+      context: ./Back/sugestao-service
+      dockerfile: Dockerfile
+    container_name: sugestao-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    networks:
+      - roteiros-network
+
+networks:
+  roteiros-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

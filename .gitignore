@@ -1,0 +1,18 @@
+# Arquivos de ambiente com credenciais (CRUCIAL)
+.env
+
+# Arquivos de Build/Compilação do Back-end (Spring/Maven)
+/back/*/target/
+/back/*.jar
+/back/*/node_modules/ # Adicionei isso se houver node_modules aninhado
+
+# Arquivos de Build/Dependências do Front-end (Angular/npm)
+/front/node_modules/
+/front/dist/
+/front/tmp/
+/front/*.tgz
+
+# Arquivos da IDE
+.idea/
+.vscode/
+*.iml

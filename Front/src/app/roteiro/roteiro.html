@@ -1,0 +1,55 @@
+<div class="container">
+  
+  <h2>✈️ {{ isEditing ? 'Editar Roteiro' : 'Criar Novo Roteiro' }}</h2>
+
+  <form (ngSubmit)="salvarRoteiro()" class="form-group">
+    
+    <label for="titulo">Título:</label>
+    <input [(ngModel)]="novoRoteiro.titulo" name="titulo" placeholder="Ex: Férias na Ásia" required>
+    
+    <label for="destino">Destino:</label>
+    <input [(ngModel)]="novoRoteiro.destino" name="destino" placeholder="Ex: Tóquio, Japão" required>
+    
+    <label for="dataInicio">Data Início:</label>
+    <input type="date" [(ngModel)]="novoRoteiro.dataInicio" name="dataInicio" required>
+
+    <label for="dataFim">Data Fim:</label>
+    <input type="date" [(ngModel)]="novoRoteiro.dataFim" name="dataFim" required>
+    
+    <label for="custoEstimado">Custo Estimado (R$):</label>
+    <input type="number" [(ngModel)]="novoRoteiro.custoEstimado" name="custoEstimado" placeholder="Custo Estimado" required>
+    
+    <button type="submit" class="btn btn-primary">{{ isEditing ? 'Salvar Edição' : 'Criar Roteiro' }}</button>
+    <button type="button" (click)="resetForm()" class="btn btn-secondary">Cancelar</button>
+  </form>
+
+  <hr>
+
+  <h3>Roteiros Registrados ({{ roteiros.length }})</h3>
+  <table class="roteiro-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Destino</th>
+        <th>Período</th>
+        <th>Custo (R$)</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let roteiro of roteiros">
+        <td>{{ roteiro.id }}</td>
+        <td>{{ roteiro.titulo }}</td>
+        <td>{{ roteiro.destino }}</td>
+        <td>{{ roteiro.dataInicio }} a {{ roteiro.dataFim }}</td>
+        <td>{{ roteiro.custoEstimado | currency:'BRL' }}</td>
+        <td>
+          <button (click)="preencherFormulario(roteiro)" class="btn btn-edit">Editar</button>
+          <button (click)="deletarRoteiro(roteiro.id)" class="btn btn-delete">Deletar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+</div>

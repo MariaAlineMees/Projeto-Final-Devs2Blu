@@ -1,0 +1,19 @@
+# Arquivos de Build/Compilação (Não devem ir para o Git)
+###############################################################
+*/target/
+*.jar
+*.war
+
+# Configurações sensíveis (Suas senhas estão aqui!)
+###############################################################
+# Isso impede o envio de senhas do Spring Boot
+**/application.yml
+
+# Outros arquivos da IDE e temporários
+###############################################################
+.idea/
+.vscode/
+*.iml
+
+# Arquivo de ambiente com credenciais
+.env
