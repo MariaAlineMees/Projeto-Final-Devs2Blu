@@ -2,11 +2,11 @@
 
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { RoteiroComponent } from './roteiro/roteiro'; // <--- IMPORT CORRETO!
+import { RoteiroComponent } from './roteiro/roteiro'; 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RoteiroComponent], // <--- Adicione o RoteiroComponent
+  imports: [RouterOutlet, RoteiroComponent], 
   template: `
     <header><h1>Planejador de Roteiros 🌍</h1></header>
     <main>

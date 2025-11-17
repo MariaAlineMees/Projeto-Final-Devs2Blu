@@ -1,15 +1,15 @@
 // front/src/app/roteiro/roteiro.ts
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Para usar *ngFor, *ngIf
-import { FormsModule } from '@angular/forms'; // Para usar [(ngModel)]
-import { RoteiroService, Roteiro } from '../services/roteiro'; // <--- IMPORT CORRETO!
+import { CommonModule } from '@angular/common'; 
+import { FormsModule } from '@angular/forms'; 
+import { RoteiroService, Roteiro } from '../services/roteiro'; 
 
 @Component({
   selector: 'app-roteiro',
-  templateUrl: './roteiro.html', // <--- Usa roteiro.html (sem extensão)
-  styleUrls: ['./roteiro.css'], // <--- Usa roteiro.css (sem extensão)
-  standalone: true, // <--- Configuração Standalone
-  imports: [CommonModule, FormsModule] // <--- Módulos locais
+  templateUrl: './roteiro.html', 
+  styleUrls: ['./roteiro.css'], 
+  standalone: true, 
+  imports: [CommonModule, FormsModule] 
 })
 export class RoteiroComponent implements OnInit {
 

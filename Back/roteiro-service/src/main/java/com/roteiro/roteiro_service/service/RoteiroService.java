@@ -29,7 +29,7 @@ public class RoteiroService {
             String jsonRoteiro = objectMapper.writeValueAsString(roteiroSalvo);
             roteiroProducer.send(jsonRoteiro);
         } catch (Exception e) {
-            // Em um projeto real, trate a exceção de forma mais robusta
+
             e.printStackTrace();
         }
 

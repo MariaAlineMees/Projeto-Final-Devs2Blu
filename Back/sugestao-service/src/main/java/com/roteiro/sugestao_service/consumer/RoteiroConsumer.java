@@ -12,9 +12,9 @@ public class RoteiroConsumer {
         System.out.println("-------------------------------------");
         System.out.println("[SUGESTAO SERVICE] Nova mensagem recebida: " + mensagem);
         
-        // Simulação de lógica de negócio:
-        // Na vida real, você des-serializaria o JSON da mensagem
-        // e faria uma consulta, um cálculo ou enviaria uma notificação.
+
+
+
         System.out.println("[SUGESTAO SERVICE] Processando Roteiro... Gerando sugestões de restaurantes e atividades.");
         System.out.println("-------------------------------------");
     }
