@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // 1. Indica que é um Controller e que os métodos retornam dados (API REST)
-@RequestMapping("/api/roteiros") // 2. Define o caminho base (URL) para todos os métodos
+@RestController
+@RequestMapping("/api/roteiros")
+@CrossOrigin(origins = {"http://localhost:4200", "http://localhost"})
 public class RoteiroController {
 
     // 3. Injeta o Service (Lógica de Negócio)

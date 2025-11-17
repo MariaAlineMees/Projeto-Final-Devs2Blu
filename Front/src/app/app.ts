@@ -8,7 +8,7 @@ import { RoteiroComponent } from './roteiro/roteiro'; // <--- IMPORT CORRETO!
   selector: 'app-root',
   imports: [RouterOutlet, RoteiroComponent], // <--- Adicione o RoteiroComponent
   template: `
-    <header><h1>Planejador de Roteiros Fullstack</h1></header>
+    <header><h1>Planejador de Roteiros 🌍</h1></header>
     <main>
       <app-roteiro></app-roteiro> </main>
   `,
