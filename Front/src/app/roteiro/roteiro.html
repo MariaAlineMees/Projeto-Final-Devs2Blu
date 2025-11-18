@@ -1,55 +1,60 @@
+<div class="header">
+  <div class="welcome-message" *ngIf="username$ | async as username">
+   📸 Bem-vindo(a), {{ username }}! Qual será o seu próximo destino? 🗺️🧳
+  </div>
+  <button (click)="logout()" class="logout-button">Sair</button>
+</div>
+
 <div class="container">
-  
-  <h2>✈️ {{ isEditing ? 'Editar Roteiro' : 'Criar Novo Roteiro' }}</h2>
+  <!-- Formulário para Criar/Editar Roteiros -->
+  <div class="form-container">
+    <h2>{{ isEditing ? 'Editar Roteiro' : 'Novo Roteiro' }}</h2>
+    <form (ngSubmit)="salvarRoteiro()">
+      <div class="form-group">
+        <label for="titulo">Título:</label>
+        <input type="text" id="titulo" name="titulo" [(ngModel)]="novoRoteiro.titulo" required>
+      </div>
+      <div class="form-group">
+        <label for="destino">Destino:</label>
+        <input type="text" id="destino" name="destino" [(ngModel)]="novoRoteiro.destino" required>
+      </div>
+      <div class="form-group">
+        <label for="dataInicio">Data de Início:</label>
+        <input type="date" id="dataInicio" name="dataInicio" [(ngModel)]="novoRoteiro.dataInicio" required>
+      </div>
+      <div class="form-group">
+        <label for="dataFim">Data de Fim:</label>
+        <input type="date" id="dataFim" name="dataFim" [(ngModel)]="novoRoteiro.dataFim" required>
+      </div>
+      <div class="form-group">
+        <label for="custoEstimado">Custo Estimado:</label>
+        <input type="number" id="custoEstimado" name="custoEstimado" [(ngModel)]="novoRoteiro.custoEstimado" required>
+      </div>
+      <div class="form-actions">
+        <button type="submit">{{ isEditing ? 'Atualizar' : 'Salvar' }}</button>
+        <button type="button" (click)="resetForm()" *ngIf="isEditing">Cancelar</button>
+      </div>
+    </form>
+  </div>
 
-  <form (ngSubmit)="salvarRoteiro()" class="form-group">
-    
-    <label for="titulo">Título:</label>
-    <input [(ngModel)]="novoRoteiro.titulo" name="titulo" placeholder="Ex: Férias na Ásia" required>
-    
-    <label for="destino">Destino:</label>
-    <input [(ngModel)]="novoRoteiro.destino" name="destino" placeholder="Ex: Tóquio, Japão" required>
-    
-    <label for="dataInicio">Data Início:</label>
-    <input type="date" [(ngModel)]="novoRoteiro.dataInicio" name="dataInicio" required>
-
-    <label for="dataFim">Data Fim:</label>
-    <input type="date" [(ngModel)]="novoRoteiro.dataFim" name="dataFim" required>
-    
-    <label for="custoEstimado">Custo Estimado (R$):</label>
-    <input type="number" [(ngModel)]="novoRoteiro.custoEstimado" name="custoEstimado" placeholder="Custo Estimado" required>
-    
-    <button type="submit" class="btn btn-primary">{{ isEditing ? 'Salvar Edição' : 'Criar Roteiro' }}</button>
-    <button type="button" (click)="resetForm()" class="btn btn-secondary">Cancelar</button>
-  </form>
-
-  <hr>
-
-  <h3>Roteiros Registrados ({{ roteiros.length }})</h3>
-  <table class="roteiro-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Título</th>
-        <th>Destino</th>
-        <th>Período</th>
-        <th>Custo (R$)</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let roteiro of roteiros">
-        <td>{{ roteiro.id }}</td>
-        <td>{{ roteiro.titulo }}</td>
-        <td>{{ roteiro.destino }}</td>
-        <td>{{ roteiro.dataInicio }} a {{ roteiro.dataFim }}</td>
-        <td>{{ roteiro.custoEstimado | currency:'BRL' }}</td>
-        <td>
-          <button (click)="preencherFormulario(roteiro)" class="btn btn-edit">Editar</button>
-          <button (click)="deletarRoteiro(roteiro.id)" class="btn btn-delete">Deletar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  
+  <!-- Lista de Roteiros -->
+  <div class="list-container">
+    <h2>Meus Roteiros</h2>
+    <div *ngIf="roteiros.length === 0" class="empty-state">
+      <p>Você ainda não tem roteiros cadastrados.</p>
+    </div>
+    <ul *ngIf="roteiros.length > 0">
+      <li *ngFor="let roteiro of roteiros">
+        <div class="roteiro-info">
+          <strong>{{ roteiro.titulo }}</strong> ({{ roteiro.destino }})
+          <p>{{ roteiro.dataInicio | date:'dd/MM/yyyy' }} - {{ roteiro.dataFim | date:'dd/MM/yyyy' }}</p>
+          <p>Custo: {{ roteiro.custoEstimado | currency:'BRL' }}</p>
+        </div>
+        <div class="roteiro-actions">
+          <button (click)="preencherFormulario(roteiro)">Editar</button>
+          <button (click)="deletarRoteiro(roteiro.id)">Deletar</button>
+        </div>
+      </li>
+    </ul>
+  </div>
 </div>

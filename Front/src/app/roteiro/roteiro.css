@@ -1,0 +1,208 @@
+/* Layout principal com duas colunas */
+.container {
+  display: flex;
+  gap: 2rem; /* Espaço entre as colunas */
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7f6;
+  min-height: 100vh;
+}
+
+/* Container do formulário (coluna da esquerda) */
+.form-container {
+  flex: 1; /* Ocupa 1 parte do espaço */
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  height: fit-content; /* A altura se ajusta ao conteúdo */
+}
+
+/* Container da lista (coluna da direita) */
+.list-container {
+  flex: 2; /* Ocupa 2 partes do espaço, sendo maior */
+}
+
+h2 {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+/* Estilos do formulário (similar ao login) */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.form-actions button {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, opacity 0.3s;
+}
+
+.form-actions button[type="submit"] {
+  background-color: #007bff; /* Azul para salvar/atualizar */
+}
+
+.form-actions button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.form-actions button[type="button"] {
+  background-color: #6c757d; /* Cinza para cancelar */
+}
+
+.form-actions button[type="button"]:hover {
+  background-color: #5a6268;
+}
+
+/* Estilos da lista de roteiros */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Layout responsivo em grade */
+  gap: 1.5rem;
+}
+
+li {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+li:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.roteiro-info strong {
+  font-size: 1.2rem;
+  color: #007bff;
+}
+
+.roteiro-info p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.roteiro-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
+.roteiro-actions button {
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: 500;
+}
+
+.roteiro-actions button:first-of-type {
+  background-color: #28a745; /* Verde para editar */
+}
+.roteiro-actions button:first-of-type:hover {
+  background-color: #218838;
+}
+
+.roteiro-actions button:last-of-type {
+  background-color: #dc3545; /* Vermelho para deletar */
+}
+.roteiro-actions button:last-of-type:hover {
+  background-color: #c82333;
+}
+
+/* Estado de lista vazia */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+.empty-state p {
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+/* Cabeçalho com mensagem de boas-vindas e logout */
+.header {
+  background-color: #343a40;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between; /* Espaço entre os itens */
+  align-items: center; /* Alinha verticalmente */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.welcome-message {
+  color: #f8f9fa;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.logout-button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+  background-color: #0056b3;
+}

@@ -1,0 +1,54 @@
+package com.roteiro.roteiro_service.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
+
+@Entity
+@Table(name = "users") // "user" é frequentemente uma palavra-chave reservada em SQL
+@Data
+public class User implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    // --- Métodos da interface UserDetails ---
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Para simplificar, ainda não estamos usando papéis (roles).
+        // Podemos adicionar papéis mais tarde (ex: ROLE_USER, ROLE_ADMIN).
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // A conta nunca expira
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // A conta nunca é bloqueada
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // As credenciais nunca expiram
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // A conta está sempre ativa
+    }
+}

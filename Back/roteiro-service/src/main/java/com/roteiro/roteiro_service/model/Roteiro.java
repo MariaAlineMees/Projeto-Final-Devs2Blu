@@ -1,9 +1,7 @@
 package com.roteiro.roteiro_service.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -18,7 +16,10 @@ public class Roteiro {
     private String destino;
     private String dataInicio;
     private String dataFim;
-    private Double custoEstimado;
+    private double custoEstimado;
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore // Evita que os detalhes do usuário sejam enviados de volta com o roteiro
+    private User user;
 }

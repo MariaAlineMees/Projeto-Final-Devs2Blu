@@ -17,31 +17,33 @@ Este é o projeto final da disciplina, um sistema fullstack completo para gerenc
 | :---------- | :-------------------- | :--------------------------------------------------------------------- |
 | **Front-end** | Angular               | Interface de usuário reativa para interagir com a API.                 |
 | **Back-end**  | Spring Boot 3 + Java 17 | Microsserviços que expõem uma API REST (CRUD completo).                |
-| **Banco de Dados** | MySQL 8.0             | Persistência dos dados dos roteiros.                                   |
+| **Segurança** | Spring Security       | Autenticação e autorização baseada em sessão para proteger a API.      |
+| **Banco de Dados** | MySQL 8.0             | Persistência dos dados de usuários e roteiros.                         |
 | **Mensageria**| RabbitMQ              | Comunicação assíncrona entre os serviços de back-end.                  |
 | **Infraestrutura** | Docker & Docker Compose | Containerização e orquestração de todos os serviços da aplicação. |
 
 ---
 
-### 3. Arquitetura e Fluxo de Mensageria
+### 3. Arquitetura e Fluxo de Dados
 
 O sistema é composto por 3 serviços principais, um banco de dados e um broker de mensagens:
 
 -   `roteiro-front`: A aplicação Angular que o usuário acessa no navegador.
--   `roteiro-service`: Microsserviço Spring Boot responsável pelo CRUD de roteiros.
+-   `roteiro-service`: Microsserviço Spring Boot responsável pelo CRUD de roteiros e pela **autenticação/autorização de usuários** com Spring Security.
 -   `sugestao-service`: Microsserviço Spring Boot que "ouve" a criação de novos roteiros para processar sugestões.
 
-O fluxo de mensageria com RabbitMQ ocorre da seguinte forma:
+O fluxo de dados ocorre da seguinte forma:
 
-1.  **Ação do Usuário:** O usuário cria um novo roteiro de viagem através da interface do `roteiro-front`.
-2.  **Produtor (`roteiro-service`):** A API recebe a requisição, salva o novo roteiro no banco de dados MySQL e, em seguida, **produz** uma mensagem para uma fila no RabbitMQ com os detalhes do roteiro criado.
-3.  **Consumidor (`sugestao-service`):** Este serviço está inscrito na fila. Ele **consome** a mensagem de forma assíncrona e simula um processamento (como buscar sugestões de atividades, hotéis, etc.), imprimindo um log para confirmar o recebimento.
+1.  **Registro e Login:** O usuário cria uma conta e faz login através da interface. O `roteiro-service` valida as credenciais e cria uma sessão segura.
+2.  **Criação de Roteiro:** Com o login feito, o usuário cria um novo roteiro. A API do `roteiro-service` recebe a requisição, associa o roteiro ao usuário logado e salva no MySQL.
+3.  **Mensageria (RabbitMQ):** Após salvar, o `roteiro-service` **produz** uma mensagem para uma fila no RabbitMQ com os detalhes do roteiro criado.
+4.  **Processamento Assíncrono:** O `sugestao-service` **consome** a mensagem e simula um processamento (como buscar sugestões de atividades), imprimindo um log para confirmar o recebimento.
 
 ---
 
 ### 4. Como Rodar o Projeto Completo
 
-Com a aplicação totalmente containerizada, o processo para rodar todo o ambiente (Front-end, Back-end, Banco de Dados e RabbitMQ) é simplificado.
+Com a aplicação totalmente containerizada, o processo para rodar todo o ambiente é simplificado.
 
 #### A. Pré-requisitos
 
@@ -50,8 +52,6 @@ Com a aplicação totalmente containerizada, o processo para rodar todo o ambien
 -   Um editor de texto ou IDE para criar o arquivo de ambiente.
 
 #### B. Passo 1: Configurar a Senha do Banco de Dados
-
-As credenciais do banco de dados são gerenciadas através de um arquivo `.env` para segurança.
 
 1.  Na pasta raiz do projeto (`/Projeto-final`), crie um arquivo chamado `.env`.
 2.  Adicione a seguinte variável dentro dele, substituindo `sua_senha_secreta` por uma senha de sua escolha:
@@ -63,8 +63,6 @@ As credenciais do banco de dados são gerenciadas através de um arquivo `.env` 
 
 #### C. Passo 2: Compilar e Iniciar a Aplicação
 
-O Docker Compose cuidará de compilar os projetos Java e Angular dentro dos contêineres antes de iniciá-los.
-
 1.  Abra um terminal na pasta raiz do projeto (`/Projeto-final`).
 2.  Execute o seguinte comando para construir as imagens e iniciar todos os contêineres em segundo plano:
 
@@ -73,14 +71,19 @@ O Docker Compose cuidará de compilar os projetos Java e Angular dentro dos cont
     ```
     *A flag `--build` garante que as imagens sejam (re)construídas caso haja alguma alteração no código. Na primeira vez, o processo pode demorar alguns minutos.*
 
-#### D. Passo 3: Acessar os Serviços
+#### D. Passo 3: Utilizar a Aplicação
 
 Após a conclusão do comando, a aplicação estará no ar.
 
+1.  **Acesse a Aplicação:** Abra seu navegador e vá para `http://localhost`.
+2.  **Crie uma Conta:** Você será direcionado para a página de login. Clique no link "Não tem uma conta? Registre-se" e crie um novo usuário.
+3.  **Faça Login:** Após o registro, faça login com as credenciais que você acabou de criar.
+4.  **Gerencie seus Roteiros:** Agora você pode criar, editar e deletar seus próprios roteiros de viagem.
+
 | Serviço             | URL de Acesso                | Portas (Host:Container) | Credenciais (se aplicável)   |
 | :------------------ | :--------------------------- | :---------------------- | :---------------------------- |
-| **Aplicação (Front-end)** | `http://localhost`           | `80:80`                 | -                             |
-| **API de Roteiros** | Acessada via Front-end (`/api`) | `8080:8080`             | -                             |
+| **Aplicação (Front-end)** | `http://localhost`           | `80:80`                 | Criadas pelo usuário.         |
+| **API de Roteiros** | Acessada via Front-end (`/api`) | `8080:8080`             | Requer autenticação.          |
 | **RabbitMQ (UI)**   | `http://localhost:15672`     | `15672:15672`           | `guest` / `guest`             |
 | **Banco de Dados**  | `localhost` (via cliente SQL) | `3307:3306`             | `root` / `sua_senha_secreta` |
 
