@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Entity
-@Table(name = "users") // "user" é frequentemente uma palavra-chave reservada em SQL
+@Table(name = "users")
 @Data
 public class User implements UserDetails {
 
@@ -27,8 +27,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Para simplificar, ainda não estamos usando papéis (roles).
-        // Podemos adicionar papéis mais tarde (ex: ROLE_USER, ROLE_ADMIN).
+        // Adicionar papéis mais tarde (ex: ROLE_USER, ROLE_ADMIN).
         return Collections.emptyList();
     }
 

@@ -8,7 +8,7 @@ Este documento serve como um roteiro para explicar o projeto, sua arquitetura, t
 
 **Resposta:** O projeto é um **Planejador de Roteiros de Viagem**, uma aplicação web full-stack que permite a um usuário criar, visualizar, editar e deletar seus próprios roteiros de viagem.
 
-O objetivo é resolver um problema de organização: em vez de ter informações de viagem espalhadas em planilhas ou blocos de notas, o usuário pode centralizar tudo em uma interface simples e objetiva.
+O objetivo é resolver um problema de organização: em vez de ter informações de viagem espalhadas em planilhas ou blocos de notas, o usuário pode centralizar tudo em uma interface simples, segura e personalizada.
 
 ---
 
@@ -18,13 +18,13 @@ O objetivo é resolver um problema de organização: em vez de ter informações
 
 *   **Front-end (A Interface do Usuário):**
     *   **Tecnologia:** **Angular**.
-    *   **Função:** É a tela que o usuário vê no navegador. Ele é responsável por exibir o formulário de criação, a lista de roteiros e os botões de ação. Sua única função é se comunicar com o back-end através de uma API REST.
+    *   **Função:** É a tela que o usuário vê no navegador. Ele é responsável por exibir as páginas de login, registro, o formulário de criação de roteiros e a lista de roteiros. Sua única função é se comunicar com o back-end através de uma API REST.
 
 *   **Back-end (O Cérebro do Sistema):**
-    *   O back-end é dividido em **dois microsserviços Spring Boot** para implementar a comunicação com mensageria.
+    *   O back-end é dividido em **dois microsserviços Spring Boot**.
     *   **1. `roteiro-service` (O Serviço Principal):**
-        *   **Tecnologia:** Spring Boot com Java 17.
-        *   **Função:** Expõe a API REST principal com as operações de CRUD (Criar, Ler, Atualizar, Deletar). Ele recebe as chamadas do front-end e as salva no banco de dados **MySQL**.
+        *   **Tecnologia:** Spring Boot com Java 17 e **Spring Security**.
+        *   **Função:** Expõe a API REST principal, gerencia o CRUD de roteiros e, o mais importante, **controla toda a segurança da aplicação**, incluindo registro, login e autorização de usuários.
         *   **Papel na Mensageria:** Atua como **Produtor**.
     *   **2. `sugestao-service` (O Serviço Secundário):**
         *   **Tecnologia:** Spring Boot com Java 17.
@@ -32,34 +32,56 @@ O objetivo é resolver um problema de organização: em vez de ter informações
         *   **Papel na Mensageria:** Atua como **Consumidor**.
 
 *   **Infraestrutura (A Base de Tudo):**
-    *   **Banco de Dados:** **MySQL**, rodando em um contêiner Docker para guardar os dados dos roteiros de forma permanente.
+    *   **Banco de Dados:** **MySQL**, rodando em um contêiner Docker para guardar os dados de usuários e roteiros de forma permanente.
     *   **Mensageria:** **RabbitMQ**, também em um contêiner, servindo como um "carteiro" para garantir a comunicação assíncrona entre os serviços de back-end.
 
 ---
 
-### 3. Como funciona a mensageria com RabbitMQ neste projeto?
+### 3. Como a Segurança foi Implementada?
 
-**Resposta:** O fluxo de mensageria é um dos pontos centrais do projeto e funciona em três etapas:
+**Resposta:** A segurança foi um pilar central do projeto, garantindo que os dados de cada usuário sejam privados e seguros. Implementamos isso em duas camadas:
 
-1.  **Ação:** Quando o usuário clica em "Salvar" no front-end, o Angular envia uma requisição `POST` para o `roteiro-service`.
-2.  **Produção:** O `roteiro-service` salva o novo roteiro no MySQL e, em seguida, **publica uma mensagem** em uma fila no RabbitMQ. A mensagem contém os dados do roteiro recém-criado.
-3.  **Consumo:** O `sugestao-service`, que monitora essa fila, percebe a nova mensagem, a **consome** e executa sua lógica (no nosso caso, ele imprime um log no console para provar que recebeu a informação).
+*   **Autenticação (Quem é você?):**
+    *   Utilizamos o **Spring Security** para criar um sistema de login completo.
+    *   O usuário primeiro precisa se **registrar**, e seus dados (usuário e senha) são salvos no banco de dados.
+    *   Um ponto crucial é que a senha **não é salva em texto puro**. Ela é **criptografada** com o algoritmo **BCrypt**, uma prática padrão de mercado que torna impossível reverter a senha.
+    *   Ao fazer login, o Spring Security compara a senha digitada com a versão criptografada no banco e, se tudo estiver correto, cria uma sessão segura para o usuário.
 
-A vantagem dessa abordagem é que a resposta para o usuário é imediata, sem que ele precise esperar por processos secundários (como o de sugestões), tornando a aplicação mais rápida e resiliente.
+*   **Autorização (O que você pode fazer?):**
+    *   Este foi o passo mais importante. Após o login, um usuário **só pode ver e gerenciar os seus próprios roteiros**.
+    *   Para isso, ligamos a tabela de `roteiros` à tabela de `users` no banco de dados. Cada roteiro agora tem um "dono".
+    *   Toda a lógica no back-end foi alterada para sempre filtrar os dados pelo usuário que está logado na sessão. Assim, a "Aline" nunca conseguirá ver os roteiros do "João", e vice-versa.
+    *   No front-end, a rota `/roteiros` é protegida por um **AuthGuard** do Angular, que redireciona qualquer usuário não logado para a página de login.
 
 ---
 
-### 4. Quais foram os principais desafios e aprendizados durante o desenvolvimento?
+### 4. Como funciona a mensageria com RabbitMQ neste projeto?
 
-**Resposta:** Além de construir a estrutura inicial, passamos por um processo de depuração e refinamento muito importante para integrar todas as partes:
+**Resposta:** O fluxo de mensageria demonstra a comunicação assíncrona:
 
-1.  **Containerização Completa:** Criamos `Dockerfile` para cada serviço e um `docker-compose.yml` na raiz para orquestrar tudo. Hoje, com um único comando (`docker-compose up --build -d`), conseguimos subir a aplicação inteira.
+1.  **Ação:** Quando um usuário **autenticado** clica em "Salvar" no front-end, o Angular envia uma requisição `POST` para o `roteiro-service`.
+2.  **Produção:** O `roteiro-service` salva o novo roteiro no MySQL, associado ao usuário logado, e em seguida **publica uma mensagem em formato JSON** em uma fila no RabbitMQ.
+3.  **Consumo:** O `sugestao-service` consome a mensagem JSON, a converte de volta para um objeto Java e executa sua lógica (imprime um log para provar que recebeu a informação).
 
-2.  **Persistência de Dados:** Configuramos um **volume** no Docker para o MySQL, o que garante que os dados dos roteiros não sejam perdidos quando os contêineres são recriados.
+A vantagem é que a resposta para o usuário é imediata, sem que ele precise esperar por processos secundários.
 
-3.  **Resolução de Erros de Build do Front-end:** O maior desafio inicial foi fazer o build do Angular funcionar dentro do Docker. Após muita depuração, descobrimos que o caminho de saída dos arquivos compilados estava incorreto no `Dockerfile`. Corrigimos o caminho para `dist/roteiro-front/browser/`, o que resolveu o erro 404 do Nginx.
+---
 
-4.  **Resolução de Erros de Rede e CORS (O Desafio Final):** Mesmo com tudo rodando, o front-end não conseguia se comunicar com o back-end, apresentando erros de CORS, 403 (Proibido) e "Status 0". A solução definitiva foi implementar uma arquitetura padrão de produção:
-    *   **Proxy Reverso:** Configuramos o **Nginx** (o servidor do front-end) para atuar como um **proxy reverso**. Agora, o front-end envia as requisições para si mesmo (em `/api/...`), e o Nginx redireciona essa chamada para o `roteiro-service` dentro da rede segura do Docker. Isso eliminou todos os erros de comunicação e resolveu um problema de rede específico do Docker no Windows (WSL).
+### 5. Quais foram os principais desafios e aprendizados?
 
-Hoje, o sistema está 100% funcional, com o fluxo completo (Front-end → Back-end → RabbitMQ → Outro Back-end) rodando de forma estável e integrada.
+**Resposta:** Além de construir a estrutura inicial, passamos por um processo de depuração e refinamento muito importante:
+
+1.  **Containerização Completa:** Criamos `Dockerfile` para cada serviço e um `docker-compose.yml` na raiz para orquestrar tudo com um único comando.
+
+2.  **Persistência de Dados:** Configuramos um **volume** no Docker para o MySQL, garantindo que os dados não sejam perdidos.
+
+3.  **Implementação de Autenticação e Autorização:** Um desafio crucial foi transformar a aplicação de um sistema de "usuário único" para um sistema **multiusuário real**. Isso envolveu:
+    *   Criar as entidades `User` e `Roteiro` e ligá-las no banco de dados.
+    *   Configurar o Spring Security para usar o banco de dados em vez de um usuário em memória.
+    *   Modificar **toda a lógica de negócio** no back-end para garantir que um usuário só pudesse ver e modificar seus próprios roteiros.
+    *   Criar os componentes de Login e Registro no front-end e um serviço (`AuthService`) para gerenciar o estado de autenticação.
+
+4.  **Resolução de Erros de Rede e CORS (O Desafio Final):** O maior desafio técnico foi a comunicação entre o front-end e o back-end. A solução definitiva foi implementar uma arquitetura padrão de produção:
+    *   **Proxy Reverso:** Configuramos o **Nginx** para atuar como um **proxy reverso**. Agora, o front-end envia as requisições para si mesmo (em `/api/...`), e o Nginx redireciona essa chamada para o `roteiro-service` dentro da rede segura do Docker. Isso eliminou todos os erros de comunicação.
+
+Hoje, o sistema está 100% funcional, seguro, com o fluxo completo rodando de forma estável e integrada.
